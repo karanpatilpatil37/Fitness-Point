@@ -4135,7 +4135,7 @@
         if (sb) {
             toast('Connecting to Supabase…', 'info');
             const ok = await GymDB.loadFromCloud();
-            if (ok) toast('Connected to Supabase', 'success');
+            if (ok) toast('', 'success');
             else toast('Supabase offline — using local cache', 'warning');
         } else {
             toast('Supabase library missing', 'error');
