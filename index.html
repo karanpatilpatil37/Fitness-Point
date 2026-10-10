@@ -4133,7 +4133,7 @@
 
         // Connect Supabase cloud DB
         if (sb) {
-            toast('Connecting to Supabase…', 'info');
+            toast('', 'info');
             const ok = await GymDB.loadFromCloud();
             if (ok) toast('', 'success');
             else toast('Supabase offline — using local cache', 'warning');
