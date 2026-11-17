@@ -2671,7 +2671,38 @@
         }
         [data-theme="dark"] .sell-upi-qr-box .small { color: #cbd5e1 !important; }
 
-</style>
+
+        /* Report PDF buttons — distinct colours */
+        .pdf-btn-members {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6) !important;
+            border: none !important; color: #fff !important; font-weight: 700;
+            border-radius: 10px; box-shadow: 0 2px 8px rgba(124,58,237,0.35);
+        }
+        .pdf-btn-att-mem {
+            background: linear-gradient(135deg, #0891b2, #0e7490) !important;
+            border: none !important; color: #fff !important; font-weight: 700;
+            border-radius: 10px; box-shadow: 0 2px 8px rgba(8,145,178,0.35);
+        }
+        .pdf-btn-att-emp {
+            background: linear-gradient(135deg, #db2777, #9d174d) !important;
+            border: none !important; color: #fff !important; font-weight: 700;
+            border-radius: 10px; box-shadow: 0 2px 8px rgba(219,39,119,0.35);
+        }
+        .pdf-btn-payments {
+            background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+            border: none !important; color: #fff !important; font-weight: 700;
+            border-radius: 10px; box-shadow: 0 2px 8px rgba(234,88,12,0.35);
+        }
+        #page-inventory .pdf-btn-inv-sales {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+            color: #fff !important;
+        }
+        #page-inventory .pdf-btn-inv-stock {
+            background: linear-gradient(135deg, #ca8a04, #a16207) !important;
+            color: #fff !important;
+        }
+
+    </style>
 </head>
 <body>
     <!-- LOGIN -->
@@ -2837,7 +2868,8 @@
                 <div class="card-box">
                     <div class="card-box-header">
                         <h5><i class="fas fa-users text-primary"></i> Members Management</h5>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-sm pdf-btn-members" onclick="exportMembersPdfA5()"><i class="fas fa-file-pdf"></i> Members PDF</button>
                             <button class="btn btn-success btn-sm" onclick="exportExcel('members')"><i class="fas fa-file-excel"></i> Export</button>
                             <button class="btn btn-primary btn-sm" onclick="showModal('modalAddMember')"><i class="fas fa-plus"></i> Add Member</button>
                         </div>
@@ -2877,6 +2909,8 @@
                     <div class="card-box-header">
                         <h5><i class="fas fa-calendar-check text-success"></i> Attendance</h5>
                         <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-sm pdf-btn-att-mem" onclick="exportMemberAttendancePdfA5()"><i class="fas fa-file-pdf"></i> Members Att. PDF</button>
+                            <button class="btn btn-sm pdf-btn-att-emp" onclick="exportEmployeeAttendancePdfA5()"><i class="fas fa-file-pdf"></i> Employees Att. PDF</button>
                             <button class="btn btn-sm" id="btnMarkAllAtt" onclick="markAllPresentCurrent()"><i class="fas fa-check-double"></i> Mark All Present</button>
                         </div>
                     </div>
@@ -2912,7 +2946,8 @@
                 <div class="card-box">
                     <div class="card-box-header">
                         <h5><i class="fas fa-credit-card text-warning"></i> Payments</h5>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-sm pdf-btn-payments" onclick="exportPaymentsPdfA5()"><i class="fas fa-file-pdf"></i> Payments PDF</button>
                             <button class="btn btn-success btn-sm" onclick="exportExcel('payments')"><i class="fas fa-file-excel"></i> Export</button>
                             <button class="btn btn-primary btn-sm" onclick="openPaymentModal()"><i class="fas fa-plus"></i> Collect Payment</button>
                         </div>
@@ -2975,6 +3010,12 @@
                                 </button>
                                 <button type="button" class="inv-act inv-act-export" onclick="exportInvCurrent()">
                                     <i class="fas fa-file-excel"></i><span>Export</span>
+                                </button>
+                                <button type="button" class="inv-act pdf-btn-inv-sales" onclick="exportInventorySalesPdfA5()" title="Sales PDF">
+                                    <i class="fas fa-file-pdf"></i><span>Sales PDF</span>
+                                </button>
+                                <button type="button" class="inv-act pdf-btn-inv-stock" onclick="exportInventoryStockPdfA5()" title="Stock PDF">
+                                    <i class="fas fa-file-pdf"></i><span>Stock PDF</span>
                                 </button>
                             </div>
                         </div>
@@ -6817,6 +6858,293 @@
         doc.line(10, y + 17, pageW - 10, y + 17);
         return y + 22;
     }
+
+
+    // ===================== A5 Landscape Report PDFs =====================
+    function fpA5Landscape() {
+        // A5 landscape = 210mm wide x 148mm tall
+        return { orientation: 'landscape', unit: 'mm', format: 'a5' };
+    }
+    function fpPdfPageBorder(doc) {
+        const w = doc.internal.pageSize.getWidth();
+        const h = doc.internal.pageSize.getHeight();
+        doc.setDrawColor(79, 70, 229);
+        doc.setLineWidth(0.8);
+        doc.rect(6, 6, w - 12, h - 12);
+        doc.setDrawColor(165, 180, 252);
+        doc.setLineWidth(0.3);
+        doc.rect(7.5, 7.5, w - 15, h - 15);
+    }
+    function fpLoadLogoDataUrl(url) {
+        return new Promise(function(resolve) {
+            if (!url) return resolve('');
+            if (String(url).indexOf('data:image') === 0) return resolve(url);
+            try {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = function() {
+                    try {
+                        const c = document.createElement('canvas');
+                        const size = 128;
+                        c.width = size; c.height = size;
+                        const ctx = c.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, size, size);
+                        const scale = Math.min(size / img.width, size / img.height);
+                        const dw = img.width * scale, dh = img.height * scale;
+                        ctx.drawImage(img, (size - dw) / 2, (size - dh) / 2, dw, dh);
+                        resolve(c.toDataURL('image/png'));
+                    } catch (e) { resolve(''); }
+                };
+                img.onerror = function() { resolve(''); };
+                img.src = url;
+            } catch (e) { resolve(''); }
+        });
+    }
+    async function fpPdfHeaderA5(doc, brand, title) {
+        fpPdfPageBorder(doc);
+        const pageW = doc.internal.pageSize.getWidth();
+        let y = 12;
+        let logoData = '';
+        if (brand.logo) logoData = await fpLoadLogoDataUrl(brand.logo);
+        const hasLogo = !!logoData;
+        if (hasLogo) {
+            try { doc.addImage(logoData, 'PNG', 11, y - 1, 14, 14); }
+            catch (e) {
+                try { doc.addImage(logoData, 'JPEG', 11, y - 1, 14, 14); } catch (e2) {}
+            }
+        }
+        const left = hasLogo ? 28 : 11;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(40, 40, 90);
+        doc.text(String(brand.name || 'Fitness Point'), left, y + 3);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(70, 70, 80);
+        let yy = y + 7;
+        if (brand.address) {
+            const lines = doc.splitTextToSize(String(brand.address), pageW - left - 12);
+            doc.text(lines, left, yy);
+            yy += 3.5 * lines.length;
+        }
+        const contact = [
+            brand.phone ? ('Mobile: ' + brand.phone) : '',
+            brand.email ? ('Email: ' + brand.email) : ''
+        ].filter(Boolean).join('   |   ');
+        if (contact) { doc.text(contact, left, yy); yy += 4; }
+        doc.setDrawColor(79, 70, 229);
+        doc.setLineWidth(0.5);
+        doc.line(11, Math.max(yy, 26), pageW - 11, Math.max(yy, 26));
+        const titleY = Math.max(yy, 26) + 6;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 30, 60);
+        doc.text(String(title || 'Report'), pageW / 2, titleY, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(100, 100, 110);
+        const when = new Date().toLocaleString('en-IN');
+        doc.text('Generated: ' + when, pageW - 11, titleY, { align: 'right' });
+        return titleY + 5;
+    }
+    function fpPdfTable(doc, startY, headers, rows, colWidths) {
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        const marginX = 11;
+        const maxY = pageH - 12;
+        let y = startY;
+        const totalW = colWidths.reduce((a, b) => a + b, 0);
+        const scale = (pageW - marginX * 2) / totalW;
+        const widths = colWidths.map(w => w * scale);
+
+        function drawHeader() {
+            /* No fill background — print-safe black bold headings */
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7.5);
+            doc.setTextColor(0, 0, 0);
+            let x = marginX + 1.5;
+            headers.forEach((h, i) => {
+                doc.text(String(h), x, y + 4.5);
+                x += widths[i];
+            });
+            doc.setDrawColor(0, 0, 0);
+            doc.setLineWidth(0.35);
+            doc.line(marginX, y + 6, pageW - marginX, y + 6);
+            y += 8;
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(30, 30, 30);
+        }
+        drawHeader();
+        rows.forEach((row, ri) => {
+            if (y > maxY - 6) {
+                doc.addPage();
+                fpPdfPageBorder(doc);
+                y = 12;
+                drawHeader();
+            }
+            /* no row fill — print clear */
+            let x = marginX + 1.5;
+            doc.setFontSize(7);
+            row.forEach((cell, i) => {
+                const txt = doc.splitTextToSize(String(cell == null ? '' : cell), widths[i] - 2);
+                doc.text(txt[0] || '', x, y + 2.5);
+                x += widths[i];
+            });
+            y += 6;
+        });
+        return y;
+    }
+    async function withReportPdf(title, filename, buildRows) {
+        try {
+            const JsPDF = getJsPDF() || await loadJsPdf();
+            const brand = (typeof getGymBranding === 'function') ? getGymBranding() : { name: 'Fitness Point' };
+            const doc = new JsPDF(fpA5Landscape());
+            const y0 = await fpPdfHeaderA5(doc, brand, title);
+            const { headers, rows, colWidths } = buildRows();
+            if (!rows.length) {
+                doc.setFontSize(10);
+                doc.setTextColor(120, 120, 120);
+                doc.text('No records found.', doc.internal.pageSize.getWidth() / 2, y0 + 20, { align: 'center' });
+            } else {
+                fpPdfTable(doc, y0, headers, rows, colWidths);
+            }
+            fpPdfSave(doc, filename);
+        } catch (e) {
+            console.error(e);
+            if (typeof toast === 'function') toast('PDF error: ' + (e.message || e), 'error');
+        }
+    }
+    function exportMembersPdfA5() {
+        withReportPdf('MEMBERS REPORT — Complete Details', 'Members_Report_A5.pdf', function() {
+            const list = (GymDB.get().members || []).slice();
+            return {
+                headers: ['ID', 'Name', 'Phone', 'Plan', 'Status', 'Joined', 'Balance'],
+                colWidths: [18, 36, 28, 28, 20, 24, 22],
+                rows: list.map(m => [
+                    m.id || '',
+                    m.name || '',
+                    m.phone || m.mobile || '',
+                    m.plan || '',
+                    m.status || '',
+                    (typeof formatDateDMY === 'function' ? formatDateDMY(m.joinDate) : m.joinDate) || m.joinDate || '',
+                    'Rs ' + (Number(m.balance) || 0).toLocaleString('en-IN')
+                ])
+            };
+        });
+    }
+    function exportMemberAttendancePdfA5() {
+        withReportPdf('MEMBER ATTENDANCE — Date-wise', 'Member_Attendance_A5.pdf', function() {
+            const d = GymDB.get();
+            const dateEl = document.getElementById('attDate');
+            const filterDate = dateEl && dateEl.value ? dateEl.value : '';
+            let list = (d.attendance || []).slice();
+            if (filterDate) list = list.filter(a => a.date === filterDate);
+            list.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || String(a.memberName || '').localeCompare(String(b.memberName || '')));
+            const members = d.members || [];
+            return {
+                headers: ['Date', 'ID', 'Name', 'Plan', 'Status', 'Check-in'],
+                colWidths: [26, 20, 40, 28, 22, 28],
+                rows: list.map(a => {
+                    const m = members.find(x => String(x.id) === String(a.memberId));
+                    const plan = a.plan || (m && m.plan) || '';
+                    const checkIn = (typeof toTime12Display === 'function') ? toTime12Display(a.checkIn) : (a.checkIn || '');
+                    return [
+                        (typeof formatDateDMY === 'function' ? formatDateDMY(a.date) : a.date) || a.date || '',
+                        a.memberId || '',
+                        a.memberName || (m && m.name) || '',
+                        plan,
+                        a.status || 'Absent',
+                        checkIn || '—'
+                    ];
+                })
+            };
+        });
+    }
+    function exportEmployeeAttendancePdfA5() {
+        withReportPdf('EMPLOYEE ATTENDANCE — Date-wise', 'Employee_Attendance_A5.pdf', function() {
+            const d = GymDB.get();
+            const dateEl = document.getElementById('attDate');
+            const filterDate = dateEl && dateEl.value ? dateEl.value : '';
+            let list = (d.empAttendance || []).slice();
+            if (filterDate) list = list.filter(a => a.date === filterDate);
+            list.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || String(a.employeeName || '').localeCompare(String(b.employeeName || '')));
+            return {
+                headers: ['Date', 'ID', 'Name', 'Role', 'Status', 'Check-in'],
+                colWidths: [26, 20, 40, 28, 22, 28],
+                rows: list.map(a => {
+                    const checkIn = (typeof toTime12Display === 'function') ? toTime12Display(a.checkIn) : (a.checkIn || '');
+                    return [
+                        (typeof formatDateDMY === 'function' ? formatDateDMY(a.date) : a.date) || a.date || '',
+                        a.employeeId || '',
+                        a.employeeName || '',
+                        a.role || '',
+                        a.status || 'Absent',
+                        checkIn || '—'
+                    ];
+                })
+            };
+        });
+    }
+    function exportPaymentsPdfA5() {
+        withReportPdf('PAYMENTS REPORT — All Records', 'Payments_Report_A5.pdf', function() {
+            const list = (GymDB.get().payments || []).slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+            return {
+                headers: ['Receipt', 'Member', 'Plan/Item', 'Amount', 'Mode', 'Date', 'Status'],
+                colWidths: [22, 32, 34, 22, 20, 24, 20],
+                rows: list.map(p => [
+                    p.receiptNo || p.id || '',
+                    p.memberName || (p.itemName ? 'Product Sale' : '—'),
+                    p.plan || p.itemName || '',
+                    'Rs ' + (Number(p.amount) || 0).toLocaleString('en-IN'),
+                    p.method || p.mode || '',
+                    (typeof formatDateDMY === 'function' ? formatDateDMY(p.date) : p.date) || p.date || '',
+                    p.status || ''
+                ])
+            };
+        });
+    }
+    function exportInventorySalesPdfA5() {
+        withReportPdf('INVENTORY SALES — Product Sales', 'Inventory_Sales_A5.pdf', function() {
+            const list = (GymDB.get().inventorySales || []).slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+            return {
+                headers: ['Receipt', 'Product', 'Qty', 'Rate', 'Total', 'Mode', 'Date'],
+                colWidths: [22, 40, 14, 22, 24, 20, 24],
+                rows: list.map(s => [
+                    s.receiptNo || s.id || '',
+                    s.itemName || s.product || '',
+                    String(s.qty || 0),
+                    'Rs ' + (Number(s.unitPrice) || 0).toLocaleString('en-IN'),
+                    'Rs ' + (Number(s.amount) || 0).toLocaleString('en-IN'),
+                    s.method || '',
+                    (typeof formatDateDMY === 'function' ? formatDateDMY(s.date) : s.date) || s.date || ''
+                ])
+            };
+        });
+    }
+    function exportInventoryStockPdfA5() {
+        withReportPdf('INVENTORY STOCK — Current Stock', 'Inventory_Stock_A5.pdf', function() {
+            const list = (GymDB.get().inventory || []).slice();
+            return {
+                headers: ['Code', 'Product', 'Category', 'Qty', 'Min', 'Price', 'Status'],
+                colWidths: [22, 40, 28, 14, 14, 22, 24],
+                rows: list.map(i => {
+                    const qty = i.qty != null ? i.qty : (i.quantity != null ? i.quantity : 0);
+                    const min = i.min != null ? i.min : (i.minStock != null ? i.minStock : 0);
+                    return [
+                        i.code || i.id || '',
+                        i.name || '',
+                        i.category || '',
+                        String(qty),
+                        String(min),
+                        'Rs ' + (Number(i.price) || 0).toLocaleString('en-IN'),
+                        i.status || 'In Stock'
+                    ];
+                })
+            };
+        });
+    }
+
 
     function downloadMemberPdfA5(id) {
         return (async function() {
