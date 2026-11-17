@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
@@ -68,8 +68,221 @@
         * { scrollbar-width: none; -ms-overflow-style: none; }
         *::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
-        /* LOGIN */
-        .login-wrapper {
+
+        /* ========== Interactive Lamp Login (Fitness Point) — v2 ========== */
+        @property --glow { syntax: '<color>'; inherits: true; initial-value: #ffd36b; }
+        @property --glow-deep { syntax: '<color>'; inherits: true; initial-value: #ffb830; }
+        @property --glow-soft { syntax: '<color>'; inherits: true; initial-value: #ffe7a3; }
+        @property --glow-core { syntax: '<color>'; inherits: true; initial-value: #fffbe8; }
+        @property --r { syntax: '<length>'; inherits: true; initial-value: 0px; }
+
+        #loginPage.lamp-login {
+            --glow: #ffd36b; --glow-deep: #ffb830; --glow-soft: #ffe7a3; --glow-core: #fffbe8;
+            --panel: rgba(0,0,0,.94); --text: #f3efe6; --muted: #8b8e97; --line: #3a3c45;
+            --danger: #ff8f8f; --ok: #8be0a4; --ease: cubic-bezier(.22,.8,.24,1);
+            position: relative; width: 100%;
+            height: 100vh; height: 100dvh; height: calc(var(--vh, 1dvh) * 100);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; background: #000; color: var(--text); color-scheme: dark;
+            transition: --glow 1s ease, --glow-deep 1s ease, --glow-soft 1s ease, --glow-core 1s ease;
+        }
+        #loginPage.lamp-login::before {
+            content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+            transition: opacity 1s var(--ease);
+            background:
+              radial-gradient(520px 520px at var(--lamp-x, 24%) 34%, color-mix(in srgb, var(--glow) 22%, transparent), transparent 70%),
+              radial-gradient(900px 700px at 55% 55%, color-mix(in srgb, var(--glow-deep) 7%, transparent), transparent 70%);
+        }
+        #loginPage.lamp-on::before { opacity: 1; }
+        #loginPage * { box-sizing: border-box; }
+        #loginPage .lp-stage {
+            position: relative; width: 100%; max-width: 980px; height: 100%; overflow: hidden;
+            display: flex; align-items: center; justify-content: flex-end; padding: 0 4vw;
+        }
+
+        /* Lamp */
+        #loginPage .lp-lamp {
+            position: absolute; top: 0; left: 14%; width: 190px; z-index: 10;
+            display: flex; flex-direction: column; align-items: center; transform-origin: 50% 0;
+        }
+        #loginPage .lp-lamp.swing { animation: lpSwing 2.8s ease-out; }
+        @keyframes lpSwing {
+            0%{transform:rotate(0)} 12%{transform:rotate(7deg)} 28%{transform:rotate(-5deg)}
+            44%{transform:rotate(3.5deg)} 60%{transform:rotate(-2deg)} 78%{transform:rotate(1deg)} 100%{transform:rotate(0)}
+        }
+        #loginPage .lp-cord { width: 3px; height: 24vh; min-height: 110px; background: linear-gradient(#55575f,#2d2e34); border-radius: 2px; }
+        #loginPage .lp-rig { position: relative; width: 190px; height: 126px; }
+        #loginPage .lp-lamp-btn { position: absolute; inset: 0; background: none; border: 0; padding: 0; cursor: pointer; outline: none; }
+        #loginPage .lp-lamp-btn:focus-visible .lp-shade { outline: 2px solid var(--glow); outline-offset: 6px; }
+        #loginPage .lp-shade {
+            position: absolute; top: 0; left: 15px; width: 160px; height: 88px;
+            background: linear-gradient(160deg,#3b3d46,#1f2025);
+            clip-path: polygon(30% 0,70% 0,100% 100%,0 100%); transition: background .5s var(--ease);
+        }
+        #loginPage .lp-rim {
+            position: absolute; top: 86px; left: 15px; width: 160px; height: 6px; background: #15161a;
+            border-radius: 0 0 40px 40px / 0 0 6px 6px; transition: background .5s, box-shadow .5s;
+        }
+        #loginPage .lp-bulb {
+            position: absolute; top: 90px; left: 77px; width: 36px; height: 36px; border-radius: 50%;
+            background: #3a3b42; transition: background .4s, box-shadow .6s var(--ease);
+        }
+        #loginPage.lamp-on .lp-shade { background: linear-gradient(160deg,var(--glow-soft),var(--glow-deep)); }
+        #loginPage.lamp-on .lp-rim { background: var(--glow-soft); box-shadow: 0 6px 24px 4px color-mix(in srgb, var(--glow) 55%, transparent); }
+        #loginPage.lamp-on .lp-bulb {
+            background: radial-gradient(circle at 40% 35%,var(--glow-core),var(--glow));
+            box-shadow: 0 0 30px 14px color-mix(in srgb, var(--glow) 75%, transparent), 0 0 90px 40px color-mix(in srgb, var(--glow-deep) 35%, transparent);
+        }
+        #loginPage .lp-beam {
+            position: absolute; top: 118px; left: 50%; width: var(--beam-w, 340px); height: var(--beam-len, 62vh);
+            transform: translateX(-50%) rotate(var(--beam-rot, 0deg)); transform-origin: 50% 0;
+            pointer-events: none; opacity: 0; clip-path: polygon(44% 0,56% 0,100% 100%,0 100%);
+            background: linear-gradient(color-mix(in srgb, var(--glow) 52%, transparent), color-mix(in srgb, var(--glow) 30%, transparent) 72%, transparent);
+            transition: opacity .8s var(--ease);
+        }
+        #loginPage.lamp-on .lp-beam { opacity: 1; }
+        #loginPage .lp-beam canvas { width: 100%; height: 100%; display: block; }
+        #loginPage .lp-rig.flicker .lp-beam, #loginPage .lp-rig.flicker .lp-bulb { animation: lpFlicker .7s steps(1) 1; }
+        @keyframes lpFlicker { 0%{opacity:.2} 10%{opacity:1} 18%{opacity:.3} 28%{opacity:1} 36%{opacity:.6} 100%{opacity:1} }
+
+        #loginPage .lp-pull { position: absolute; left: 146px; top: 88px; width: 24px; height: calc(46px + var(--pull, 0px)); cursor: grab; touch-action: none; z-index: 3; }
+        #loginPage .lp-pull::before { content: ""; position: absolute; left: 11px; top: 0; bottom: 8px; width: 2px; background: #77797f; }
+        #loginPage .lp-knob { position: absolute; bottom: 0; left: 5px; width: 14px; height: 14px; border-radius: 50%; background: #c9ccd3; box-shadow: 0 2px 6px rgba(0,0,0,.5); }
+        #loginPage .lp-pull:active { cursor: grabbing; }
+        #loginPage .lp-pull.release { transition: height .45s cubic-bezier(.3,1.7,.5,1); }
+        #loginPage .lp-hint { position: relative; z-index: 2; margin: 10px 0 0; width: 190px; text-align: center; font-size: 12px; font-weight: 300; color: var(--muted); transition: opacity .4s; }
+        #loginPage.lamp-on .lp-hint { opacity: 0; }
+
+        /* Login box: lamp OFF = poora gayab, ON = light ke saath reveal */
+        #loginPage .lp-box {
+            --lx: -150px; --ly: 40px; --r: 0px;
+            position: relative; z-index: 5; width: 380px; padding: 36px 32px 28px; color: var(--text);
+            background: var(--panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,.09); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,.55);
+            pointer-events: none; filter: brightness(.55); opacity: 0; visibility: hidden;
+            -webkit-mask-image: radial-gradient(circle at var(--lx) var(--ly), #000 var(--r), rgba(0,0,0,0) calc(var(--r) + 140px));
+                    mask-image: radial-gradient(circle at var(--lx) var(--ly), #000 var(--r), rgba(0,0,0,0) calc(var(--r) + 140px));
+            transition: --r 1.3s var(--ease), filter 1s var(--ease), box-shadow 1s var(--ease), opacity .4s ease, visibility 0s linear .4s;
+        }
+        #loginPage.lamp-on .lp-box {
+            --r: 900px; filter: none; pointer-events: auto; opacity: 1; visibility: visible;
+            box-shadow: 0 20px 60px rgba(0,0,0,.55), 0 0 60px color-mix(in srgb, var(--glow) 12%, transparent);
+            transition: --r 1.3s var(--ease), filter 1s var(--ease), box-shadow 1s var(--ease), opacity .7s ease, visibility 0s;
+        }
+        #loginPage .lp-view[hidden] { display: none !important; }
+        #loginPage .lp-view { animation: lpViewIn .45s var(--ease); }
+        @keyframes lpViewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+        #loginPage .lp-brand { text-align: center; margin: 0 0 12px; }
+        #loginPage .lp-logo {
+            width: 104px; height: 104px; margin: 0 auto; border-radius: 50%; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; font-size: 38px; color: var(--glow);
+            background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.12);
+            box-shadow: 0 10px 26px rgba(0,0,0,.55);
+            transition: box-shadow .8s var(--ease);
+        }
+        #loginPage.lamp-on .lp-logo { box-shadow: 0 0 0 2px color-mix(in srgb, var(--glow) 40%, transparent), 0 0 34px color-mix(in srgb, var(--glow-deep) 35%, transparent), 0 10px 26px rgba(0,0,0,.55); }
+        #loginPage .lp-logo.has-logo { background: transparent; border: 0; padding: 0; }
+        #loginPage .lp-logo.has-logo i { display: none !important; }
+        #loginPage .lp-logo-img { width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 50%; display: block; background: transparent; }
+
+        #loginPage.lamp-on .lp-title { text-shadow: 0 0 22px color-mix(in srgb, var(--glow) 55%, transparent); }
+        #loginPage .lp-title { transition: text-shadow .8s var(--ease); margin: 0 0 26px; text-align: center; font-weight: 500; font-size: 26px; line-height: 1.2; letter-spacing: .5px; color: var(--text); }
+        #loginPage .lp-note { margin: -14px 0 18px; text-align: center; font-size: 13.5px; line-height: 1.55; color: var(--muted); }
+        #loginPage .lp-field { margin: 0 0 8px; }
+        #loginPage .lp-input { position: relative; border-bottom: 2px solid var(--line); transition: border-color .3s; }
+        #loginPage .lp-input:focus-within { border-bottom-color: var(--glow); }
+        #loginPage .lp-field.invalid .lp-input { border-bottom-color: var(--danger); }
+        #loginPage .lp-field.valid .lp-input { border-bottom-color: var(--ok); }
+        #loginPage .lp-input input { width: 100%; padding: 14px 40px 8px 0; background: #000; border: 0; border-radius: 0; outline: none; box-shadow: none; color: var(--text); font-size: 16px; }
+        #loginPage .lp-input input:-webkit-autofill,
+        #loginPage .lp-input input:-webkit-autofill:hover,
+        #loginPage .lp-input input:-webkit-autofill:focus,
+        #loginPage .lp-input input:-webkit-autofill:active {
+            -webkit-text-fill-color: var(--text); caret-color: var(--text);
+            -webkit-box-shadow: 0 0 0 1000px #000 inset; box-shadow: 0 0 0 1000px #000 inset;
+            transition: background-color 99999s ease-out 0s;
+        }
+        #loginPage .lp-input input:autofill { background: #000 !important; color: var(--text) !important; box-shadow: 0 0 0 1000px #000 inset; }
+        #loginPage .lp-input input::selection { background: color-mix(in srgb, var(--glow) 35%, #000); color: #fff; }
+        #loginPage .lp-input label { position: absolute; left: 0; top: 14px; margin: 0; color: var(--muted); pointer-events: none; transition: .25s var(--ease); font-size: 15px; }
+        #loginPage .lp-input input:focus ~ label, #loginPage .lp-input input:not(:placeholder-shown) ~ label { top: -12px; font-size: 12px; color: var(--glow); }
+        #loginPage .lp-field.invalid label { color: var(--danger) !important; }
+        #loginPage .lp-err { min-height: 18px; margin: 4px 0 0; font-size: 12px; color: var(--danger); }
+        #loginPage .lp-caps { margin: 4px 0 0; font-size: 12px; color: var(--glow); }
+        #loginPage .lp-caps[hidden] { display: none; }
+        #loginPage .lp-eye { position: absolute; right: 0; top: 8px; width: 30px; height: 30px; display: grid; place-items: center; background: none; border: 0; padding: 0; cursor: pointer; color: var(--muted); transition: color .3s; }
+        #loginPage .lp-eye:hover, #loginPage .lp-eye:focus-visible { color: var(--glow); outline: none; }
+
+        #loginPage .lp-row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0 20px; font-size: 12.5px; }
+        #loginPage .lp-remember { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--muted); cursor: pointer; user-select: none; }
+        #loginPage .lp-remember input { accent-color: var(--glow-deep); width: 15px; height: 15px; margin: 0; cursor: pointer; }
+        #loginPage .lp-link { background: none; border: 0; padding: 0; font-size: 12.5px; color: var(--muted); cursor: pointer; transition: color .3s; }
+        #loginPage .lp-link:hover, #loginPage .lp-link:focus-visible { color: var(--glow); outline: none; }
+        #loginPage .lp-back { display: block; margin: 16px auto 0; }
+        #loginPage .lp-btn {
+            width: 100%; padding: 13px; border: 0; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600; color: #2a1f05;
+            background: linear-gradient(135deg,var(--glow),color-mix(in srgb, var(--glow-deep) 60%, var(--glow)));
+            box-shadow: 0 6px 20px color-mix(in srgb, var(--glow-deep) 25%, transparent); transition: transform .2s, box-shadow .3s;
+        }
+        #loginPage .lp-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px color-mix(in srgb, var(--glow-deep) 38%, transparent); }
+        #loginPage .lp-btn:active { transform: none; }
+        #loginPage .lp-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+        #loginPage .lp-btn:disabled { opacity: .75; cursor: wait; }
+        #loginPage .lp-status { min-height: 20px; margin: 14px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
+        #loginPage .lp-status.ok { color: var(--ok); }
+        #loginPage .lp-status.err { color: var(--danger); }
+        #loginPage #loginAlert { display: none !important; }
+        #loginPage .lp-box.shake { animation: lpShake .4s; }
+        @keyframes lpShake { 20%,60% { translate: -6px 0; } 40%,80% { translate: 6px 0; } }
+
+        /* ===== Mobile: ek hi screen me fit, bina scroll ===== */
+        @media (max-width: 768px) {
+            #loginPage .lp-stage { flex-direction: column; justify-content: flex-start; align-items: center; max-width: none; padding: env(safe-area-inset-top) 14px calc(10px + env(safe-area-inset-bottom)); }
+            #loginPage .lp-lamp { position: relative; left: 0; flex: none; zoom: var(--lz, .85); }
+            #loginPage .lp-cord { height: calc(var(--vh, 1vh) * 6); min-height: 28px; }
+            #loginPage .lp-hint { margin-top: 6px; }
+            #loginPage .lp-box { --lx: 50%; --ly: -90px; flex: 0 1 auto; width: 100%; max-width: 380px; margin: auto 0; padding: 26px 22px 20px; }
+            #loginPage .lp-logo { width: 84px; height: 84px; }
+        }
+        /* JS visual-viewport (keyboard ke saath) ke hisaab se classes lagati hai */
+        #loginPage.lp-sm .lp-logo { width: 64px; height: 64px; font-size: 26px; }
+        #loginPage.lp-sm .lp-brand { margin-bottom: 8px; }
+        #loginPage.lp-sm .lp-box { padding: 22px 20px 16px; }
+        #loginPage.lp-sm .lp-title { font-size: 22px; margin-bottom: 16px; }
+        #loginPage.lp-sm .lp-input input { padding: 12px 40px 6px 0; }
+        #loginPage.lp-sm .lp-input label { top: 12px; }
+        #loginPage.lp-sm .lp-eye { top: 4px; }
+        #loginPage.lp-sm .lp-err { min-height: 15px; margin-top: 2px; font-size: 11.5px; }
+        #loginPage.lp-sm .lp-row { margin: 8px 0 14px; }
+        #loginPage.lp-sm .lp-btn { padding: 11px; font-size: 15px; }
+        #loginPage.lp-sm .lp-status { margin-top: 8px; min-height: 16px; }
+        #loginPage.lp-sm .lp-lamp { --lz: .75; }
+        #loginPage.lp-xs .lp-logo { width: 48px; height: 48px; font-size: 20px; }
+        #loginPage.lp-xs .lp-brand { margin-bottom: 6px; }
+        #loginPage.lp-xs .lp-hint, #loginPage.lp-xs .lp-note { display: none; }
+        #loginPage.lp-xs .lp-title { font-size: 20px; margin-bottom: 12px; }
+        #loginPage.lp-xs .lp-box { padding: 16px 18px 12px; }
+        #loginPage.lp-xs .lp-field { margin-bottom: 4px; }
+        #loginPage.lp-xs .lp-row { margin: 4px 0 10px; }
+        #loginPage.lp-xs .lp-btn { padding: 10px; }
+        #loginPage.lp-xs .lp-status { margin-top: 6px; min-height: 14px; font-size: 12px; }
+        #loginPage.lp-xs .lp-lamp { --lz: .62; }
+        #loginPage.lp-xxs .lp-brand { display: none; }
+        #loginPage.lp-xxs .lp-cord { height: 16px; min-height: 16px; }
+        #loginPage.lp-xxs .lp-lamp { --lz: .45; }
+        /* Phone landscape: lamp left, form right */
+        #loginPage.lp-land .lp-stage { flex-direction: row; justify-content: center; align-items: center; gap: 4vw; max-width: none; padding: 0 16px; }
+        #loginPage.lp-land .lp-lamp { position: relative; left: 0; align-self: flex-start; zoom: .6; }
+        #loginPage.lp-land .lp-cord { height: 20px; min-height: 20px; }
+        #loginPage.lp-land .lp-box { margin: 0; width: min(380px, 56vw); max-width: none; }
+        #loginPage.lp-land .lp-brand { display: block; }
+        #loginPage.lp-land .lp-logo { width: 44px; height: 44px; font-size: 18px; }
+        #loginPage.lp-land.lp-tiny .lp-brand { display: none; }
+        @media (prefers-reduced-motion: reduce) { #loginPage, #loginPage * { animation: none !important; transition-duration: .01s !important; } }
+
+        /* LOGIN legacy */
+        .login-wrapper:not(.lamp-login) {
             min-height: 100dvh; min-height: 100vh;
             height: 100dvh; height: 100vh;
             display: flex; flex-direction: column;
@@ -2462,40 +2675,66 @@
 </head>
 <body>
     <!-- LOGIN -->
-    <div id="loginPage" class="login-wrapper">
-        <button type="button" class="login-theme-toggle" onclick="toggleTheme()" aria-label="Toggle light and dark theme" title="Toggle Theme">
-            <i class="fas fa-moon" id="loginThemeIcon"></i>
-        </button>
-        <div class="login-box">
-            <div class="login-top">
-                <div class="logo-icon" id="loginLogoBox">
-                    <img id="loginLogoImg" alt="Logo" style="display:none">
-                    <i class="fas fa-dumbbell" id="loginLogoIcon"></i>
+    <div id="loginPage" class="lamp-login">
+        <main class="lp-stage">
+            <div class="lp-lamp" id="lamp">
+                <div class="lp-cord"></div>
+                <div class="lp-rig" id="rig">
+                    <button class="lp-lamp-btn" id="lampBtn" type="button" aria-pressed="false" aria-label="Lamp ON karein">
+                        <span class="lp-shade"></span><span class="lp-rim"></span><span class="lp-bulb"></span>
+                        <span class="lp-beam" id="beam"><canvas id="dust"></canvas></span>
+                    </button>
+                    <div class="lp-pull" id="pull" aria-hidden="true"><span class="lp-knob"></span></div>
                 </div>
-                <h2 id="loginGymName">Fitness Point</h2>
-                <p id="loginGymTag">Gym Management System</p>
+                <p class="lp-hint">Shade click karein ya cord kheenchein (shortcut: L)</p>
             </div>
-            <div class="login-form">
-                <div class="alert alert-danger d-none py-2" id="loginAlert"></div>
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="username" placeholder="Username" autocomplete="username">
-                    <label><i class="fas fa-user me-2"></i>Username</label>
-                </div>
-                <div class="form-floating mb-3">
-                    <input type="password" class="form-control" id="password" placeholder="Password" autocomplete="current-password">
-                    <label><i class="fas fa-lock me-2"></i>Password</label>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="rememberMe">
-                        <label class="form-check-label small" for="rememberMe">Remember me</label>
+
+            <section class="lp-box" id="loginBox" aria-label="Login">
+                <div class="lp-brand">
+                    <div class="lp-logo" id="loginLogoBox">
+                        <img id="loginLogoImg" class="lp-logo-img" alt="Logo" style="display:none">
+                        <i class="fas fa-dumbbell" id="loginLogoIcon"></i>
                     </div>
                 </div>
-                <button class="btn btn-login w-100 text-white" onclick="login()">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login
-                </button>
-            </div>
-        </div>
+                <h2 id="loginGymName" hidden aria-hidden="true"></h2>
+                <p id="loginGymTag" hidden aria-hidden="true"></p>
+
+                <div class="lp-view" id="lpLoginView">
+                    <h2 class="lp-title">Welcome</h2>
+                    <form id="loginForm" novalidate onsubmit="event.preventDefault(); login(); return false;">
+                        <div class="lp-field" id="fUser">
+                            <div class="lp-input">
+                                <input type="text" id="username" placeholder=" " autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="userErr" required>
+                                <label for="username">Username</label>
+                            </div>
+                            <p class="lp-err" id="userErr"></p>
+                        </div>
+                        <div class="lp-field" id="fPass">
+                            <div class="lp-input">
+                                <input type="password" id="password" placeholder=" " autocomplete="current-password" aria-describedby="passErr lpCaps" required>
+                                <label for="password">Password</label>
+                                <button type="button" class="lp-eye" id="togglePassword" aria-label="Password dikhayein"></button>
+                            </div>
+                            <p class="lp-caps" id="lpCaps" hidden>Caps Lock ON hai</p>
+                            <p class="lp-err" id="passErr"></p>
+                        </div>
+                        <div class="lp-row">
+                            <label class="lp-remember"><input type="checkbox" id="rememberMe"> Remember me</label>
+                            <button type="button" class="lp-link" id="lpForgot">Forgot Password?</button>
+                        </div>
+                        <div class="alert alert-danger d-none py-2 mb-2" id="loginAlert"></div>
+                        <button type="submit" class="lp-btn" id="loginBtn"><span id="btnText">Sign In</span></button>
+                        <p class="lp-status" id="loginStatus" role="status" aria-live="polite"></p>
+                    </form>
+                </div>
+
+                <div class="lp-view" id="lpResetView" hidden>
+                    <h2 class="lp-title">Forgot Password?</h2>
+                    <p class="lp-note">Password bhool gaye? Apne Admin se sampark karein, woh aapka password reset kar denge.</p>
+                    <button type="button" class="lp-btn" id="lpBack">Back to Sign In</button>
+                </div>
+            </section>
+        </main>
     </div>
 
     <!-- APP -->
@@ -3717,9 +3956,39 @@
     // ======================= SUPABASE CONFIG =======================
     const SUPABASE_URL = 'https://ckaqerbugcngpqcoagsv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_DcPyxS36arl0kpugUNeCYQ_CuacgrTi';
+    // Sandbox/preview (jaise claudeusercontent.com) me fetch ke andar Headers object clone nahi hota
+    // ("DataCloneError: Headers object could not be cloned"). Isliye Headers ko plain object bana kar bhejte hain.
+    const supabaseSafeFetch = (input, init) => {
+        try {
+            if (init && typeof Headers !== 'undefined' && init.headers instanceof Headers) {
+                const plain = {};
+                init.headers.forEach((v, k) => { plain[k] = v; });
+                init = Object.assign({}, init, { headers: plain });
+            }
+        } catch (_) {}
+        return fetch(input, init);
+    };
     const sb = (window.supabase && window.supabase.createClient)
-        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { global: { fetch: supabaseSafeFetch } })
         : null;
+
+    // Supabase server tak network pahunchta hai ya nahi — ek hi chhota check, taaki offline/blocked hone par
+    // har table ke liye alag "NetworkError" warning na aaye aur app seedha local cache se chale.
+    let _cloudOffline = false, _probeAt = 0, _probePromise = null;
+    function cloudReachable(force) {
+        if (!sb) return Promise.resolve(false);
+        const now = Date.now();
+        if (!force && _probePromise && now - _probeAt < 30000) return _probePromise;
+        _probeAt = now;
+        const ping = supabaseSafeFetch(SUPABASE_URL + '/rest/v1/', { method: 'GET', headers: { apikey: SUPABASE_ANON_KEY }, cache: 'no-store' });
+        const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 7000));
+        _probePromise = Promise.race([ping, timeout])
+            .then(() => { _cloudOffline = false; return true; })   // koi bhi HTTP jawab = server reachable
+            .catch(() => { _cloudOffline = true; return false; });
+        return _probePromise;
+    }
+    window.addEventListener('online', () => cloudReachable(true));
+    setInterval(() => { if (_cloudOffline) cloudReachable(true); }, 60000);
 
     const STORAGE_PUBLIC = SUPABASE_URL + '/storage/v1/object/public';
     const charts = {}; // Chart.js instances
@@ -4059,7 +4328,7 @@
             } catch (e) {}
             try { localStorage.setItem(this.KEY, JSON.stringify(d)); } catch (e) {}
             // Fire-and-forget cloud sync
-            if (sb) this.syncToCloud(d).catch(err => console.warn('Supabase sync:', err));
+            if (sb && !_cloudOffline) this.syncToCloud(d).catch(err => console.warn('Supabase sync:', (err && err.message) || err));
         },
         async syncToCloud(d) {
             if (!sb) return;
@@ -4183,6 +4452,11 @@
         },
         async loadFromCloud() {
             if (!sb) return false;
+            if (!(await cloudReachable(true))) {
+                console.info('Supabase tak network nahi pahunch raha (offline / blocked / project paused) — local cache use ho raha hai.');
+                _cloudReady = true;
+                return false;
+            }
             try {
                 const d = this.default();
                 const [mem, pay, pln, emp, set, fin, att, inv, cls, usr] = await Promise.all([
@@ -4312,7 +4586,7 @@
                 _cloudReady = true;
                 return true;
             } catch (err) {
-                console.warn('Supabase load failed, using local cache:', err);
+                console.warn('Supabase load failed, using local cache:', (err && (err.message || err.error_description || err.details)) || err);
                 _cloudReady = !!sb;
                 return false;
             }
@@ -4563,10 +4837,26 @@
         }
     }
     function login() {
-        const u = document.getElementById('username').value.trim().toLowerCase();
-        const p = document.getElementById('password').value;
+        if (window.lampLoginLocked && window.lampLoginLocked()) return;
+        const uEl = document.getElementById('username');
+        const pEl = document.getElementById('password');
+        const u = (uEl?.value || '').trim().toLowerCase();
+        const p = pEl?.value || '';
         const users = getLoginUsers();
         let matched = null;
+
+        const alertEl = document.getElementById('loginAlert');
+        const statusEl = document.getElementById('loginStatus');
+        if (alertEl) { alertEl.classList.add('d-none'); alertEl.textContent = ''; }
+        if (statusEl) { statusEl.textContent = ''; statusEl.className = 'lp-status'; }
+
+        if (!u || !p) {
+            if (statusEl) { statusEl.textContent = 'Username aur password daalein'; statusEl.className = 'lp-status err'; }
+            const box = document.getElementById('loginBox');
+            if (box) { box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
+            if (window.lampLoginFeedback) window.lampLoginFeedback(false, 'empty');
+            return;
+        }
 
         Object.keys(users).forEach(key => {
             const row = users[key];
@@ -4574,7 +4864,6 @@
                 matched = { ...row, key };
             }
         });
-        // Legacy fallbacks for admin
         if (!matched && u === 'admin' && (p === 'password123' || p === 'Admin@123')) {
             const a = users.admin;
             matched = { ...a, key: 'admin' };
@@ -4582,7 +4871,11 @@
 
         if (matched) {
             currentUser = matched;
-            if (document.getElementById('rememberMe').checked) localStorage.setItem('fp_user', JSON.stringify(currentUser));
+            if (document.getElementById('rememberMe')?.checked) {
+                localStorage.setItem('fp_user', JSON.stringify(currentUser));
+            } else {
+                localStorage.removeItem('fp_user');
+            }
             document.getElementById('loginPage').classList.add('d-none');
             document.getElementById('appPage').classList.remove('d-none');
             document.querySelector('.topbar')?.classList.add('topbar-home-hide');
@@ -4594,11 +4887,20 @@
             if (typeof updateNotifBadges === 'function') updateNotifBadges();
             if (typeof maybeShowExpiryPopup === 'function') maybeShowExpiryPopup();
             toast('Welcome, ' + currentUser.name + '!', 'success');
+            if (window.lampLoginFeedback) window.lampLoginFeedback(true);
         } else {
-            const a = document.getElementById('loginAlert');
-            a.className = 'alert alert-danger py-2'; a.textContent = 'Invalid username or password'; a.classList.remove('d-none');
+            if (alertEl) {
+                alertEl.className = 'alert alert-danger py-2 mb-2';
+                alertEl.textContent = 'Invalid username or password';
+                alertEl.classList.remove('d-none');
+            }
+            if (statusEl) { statusEl.textContent = 'Login fail — credentials check karein'; statusEl.className = 'lp-status err'; }
+            const box = document.getElementById('loginBox');
+            if (box) { box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
+            if (window.lampLoginFeedback) window.lampLoginFeedback(false);
         }
     }
+
 
     /** Ensure sample members/payments exist when DB empty */
     function ensureSampleData() {
@@ -4674,24 +4976,31 @@
                 ? sanitizeMediaRef(s.logo || '')
                 : (s.logo && String(s.logo).indexOf('data:') !== 0 ? s.logo : '');
 
-            // Login page
+            // Login page — logo only above Welcome (name/tag hidden)
             const nameEl = document.getElementById('loginGymName');
             if (nameEl) nameEl.textContent = name;
+            const tagEl = document.getElementById('loginGymTag');
+            if (tagEl) tagEl.textContent = '';
             const img = document.getElementById('loginLogoImg');
             const icon = document.getElementById('loginLogoIcon');
+            const logoBox = document.getElementById('loginLogoBox');
             if (img && icon) {
-                if (logo && (logo.startsWith('http') || logo.startsWith('blob:'))) {
+                const okLogo = logo && (logo.startsWith('http') || logo.startsWith('blob:') || logo.startsWith('//'));
+                if (okLogo) {
                     img.src = logo;
                     img.style.display = 'block';
                     img.onerror = function() {
                         img.style.display = 'none';
                         icon.style.display = '';
+                        if (logoBox) logoBox.classList.remove('has-logo');
                     };
                     icon.style.display = 'none';
+                    if (logoBox) logoBox.classList.add('has-logo');
                 } else {
                     img.style.display = 'none';
                     img.removeAttribute('src');
                     icon.style.display = '';
+                    if (logoBox) logoBox.classList.remove('has-logo');
                 }
             }
 
@@ -4766,8 +5075,13 @@
         const isDark = html.getAttribute('data-theme') === 'dark';
         const nextDark = !isDark;
         html.setAttribute('data-theme', nextDark ? 'dark' : '');
+        html.style.colorScheme = nextDark ? 'dark' : 'light';
         syncThemeIcons(nextDark);
-        localStorage.setItem('fp_theme', nextDark ? 'dark' : 'light');
+        try {
+            localStorage.setItem('fp_theme', nextDark ? 'dark' : 'light');
+        } catch (e) {
+            console.warn('Theme preference could not be saved:', e);
+        }
     }
     function openMenu() {
         document.getElementById('menuOverlay')?.classList.add('show');
@@ -10599,9 +10913,303 @@ const WORKOUT_EX_IMAGES = { mon:[], tue:[], wed:[], thu:[], fri:[], sat:[], sun:
         if (info) info.textContent = data.settings.lastBackup;
     }
     // INIT — load Supabase first, then UI
+    
+    // ===================== Interactive Lamp Login (v2) =====================
+    (function initLampLogin() {
+        const page = document.getElementById('loginPage');
+        if (!page) return;
+        const $ = (id) => document.getElementById(id);
+        const lamp = $('lamp'), rig = $('rig'), lampBtn = $('lampBtn'), pull = $('pull'), beam = $('beam'), dust = $('dust'),
+              box = $('loginBox'), user = $('username'), pass = $('password'), eye = $('togglePassword');
+        if (!lamp || !lampBtn || !box) return;
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isHidden = () => page.classList.contains('d-none');
+        let on = false, audioCtx = null, hum = null, dustColor = '#ffe7a3', raf = null, parts = [];
+        const store = {
+            get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } },
+            set(k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
+        };
+
+        /* ---------- Sound (Web Audio oscillator) ---------- */
+        function ctx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+        function tone(o) {
+            try {
+                const c = ctx(), t = c.currentTime + (o.start || 0), d = o.dur || 0.12, f = o.freq;
+                const osc = c.createOscillator(), g = c.createGain();
+                osc.type = o.type || 'sine';
+                osc.frequency.setValueAtTime(f, t);
+                osc.frequency.exponentialRampToValueAtTime(o.end || f, t + d);
+                g.gain.setValueAtTime(o.vol || 0.1, t);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+                osc.connect(g); g.connect(c.destination);
+                osc.start(t); osc.stop(t + d + 0.02);
+            } catch (_) {}
+        }
+        function playLamp(isOn) {
+            tone({ freq: 180, end: 90, type: 'square', dur: 0.05, vol: 0.06 });
+            if (isOn) {
+                tone({ freq: 700, end: 1100, start: 0.04, dur: 0.18 });
+                tone({ freq: 1400, end: 1800, type: 'triangle', start: 0.06, dur: 0.1, vol: 0.04 });
+            } else tone({ freq: 600, end: 220, start: 0.04, dur: 0.18, vol: 0.09 });
+        }
+        function startHum() {
+            if (hum) return;
+            try {
+                const c = ctx(), o = c.createOscillator(), g = c.createGain();
+                o.type = 'sine'; o.frequency.value = 100;
+                g.gain.setValueAtTime(0.0001, c.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.012, c.currentTime + 0.6);
+                o.connect(g); g.connect(c.destination); o.start();
+                hum = { o, g };
+            } catch (_) {}
+        }
+        function stopHum() {
+            if (!hum) return;
+            const h = hum; hum = null;
+            try { h.g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2); h.o.stop(audioCtx.currentTime + 0.25); } catch (_) {}
+        }
+
+        /* ---------- Dust particles in beam ---------- */
+        const dctx = dust ? dust.getContext('2d') : null;
+        function sizeDust() {
+            dust.width = beam.offsetWidth; dust.height = beam.offsetHeight;
+            parts = Array.from({ length: 50 }, () => ({
+                x: Math.random() * dust.width, y: Math.random() * dust.height, r: .6 + Math.random() * 1.4,
+                vx: (Math.random() - .5) * .15, vy: .05 + Math.random() * .2, a: .2 + Math.random() * .6
+            }));
+        }
+        function drawDust() {
+            dctx.clearRect(0, 0, dust.width, dust.height);
+            for (const p of parts) {
+                p.x += p.vx; p.y += p.vy;
+                if (p.y > dust.height) p.y = 0;
+                if (p.x < 0) p.x = dust.width; else if (p.x > dust.width) p.x = 0;
+                dctx.globalAlpha = p.a; dctx.fillStyle = dustColor;
+                dctx.beginPath(); dctx.arc(p.x, p.y, p.r, 0, 6.283); dctx.fill();
+            }
+            dctx.globalAlpha = 1;
+            raf = requestAnimationFrame(drawDust);
+        }
+        function setDust(run) {
+            if (!dctx) return;
+            cancelAnimationFrame(raf); raf = null;
+            if (run && !reduce) { sizeDust(); drawDust(); }
+        }
+
+        /* ---------- Light colours: cord kheenchne par agla colour ---------- */
+        const THEMES = [
+            { n: 'Gold',      g: '#ffd36b', d: '#ffb830', s: '#ffe7a3', c: '#fffbe8' },
+            { n: 'Ice Blue',  g: '#6be0ff', d: '#26aae6', s: '#afe9ff', c: '#effcff' },
+            { n: 'Rose Pink', g: '#ff78c8', d: '#e83c96', s: '#ffb9e1', c: '#fff0f8' },
+            { n: 'Emerald',   g: '#6ef0aa', d: '#1ebe6e', s: '#b4fad2', c: '#effff6' },
+            { n: 'Violet',    g: '#af8cff', d: '#7850e6', s: '#d2beff', c: '#f6f0ff' },
+            { n: 'Coral',     g: '#ff8c64', d: '#f05a3c', s: '#ffc3aa', c: '#fff2ec' },
+            { n: 'Sky Blue',  g: '#6ea0ff', d: '#326ef0', s: '#afc8ff', c: '#eef3ff' },
+            { n: 'Lime',      g: '#c8f061', d: '#8cc820', s: '#e3f8a5', c: '#fbffec' }
+        ];
+        let themeIdx = parseInt(store.get('fp_lamp_theme'), 10);
+        if (!(themeIdx >= 0 && themeIdx < THEMES.length)) themeIdx = 0;
+        function applyTheme(i) {
+            const t = THEMES[i], st = page.style;
+            st.setProperty('--glow', t.g); st.setProperty('--glow-deep', t.d);
+            st.setProperty('--glow-soft', t.s); st.setProperty('--glow-core', t.c);
+            dustColor = t.s;
+        }
+        applyTheme(themeIdx);
+
+        /* ---------- Screen fit (no scroll, keyboard ke saath bhi) ---------- */
+        function positionLight() {
+            if (isHidden()) return;
+            const r = lampBtn.getBoundingClientRect(), b = box.getBoundingClientRect();
+            page.style.setProperty('--lamp-x', (r.left + r.width / 2) + 'px');
+            // Beam: portrait/mobile me lamp form ke upar hai, to beam bulb se Welcome heading tak jati hai.
+            // Desktop/landscape me lamp form ke side me hai, wahan beam pehle ki tarah neeche rehti hai.
+            const stacked = window.matchMedia('(max-width: 768px)').matches && !page.classList.contains('lp-land');
+            const ps = page.style;
+            if (stacked) {
+                const z = parseFloat(getComputedStyle(lamp).zoom) || 1;
+                const title = page.querySelector('.lp-view:not([hidden]) .lp-title') || box;
+                const t = title.getBoundingClientRect();
+                const ox = r.left + r.width / 2, oy = r.top + 118 * z;
+                const dx = t.left + t.width / 2 - ox, dy = Math.max(40, t.top + t.height / 2 - oy);
+                const dist = Math.hypot(dx, dy);
+                ps.setProperty('--beam-len', ((dist + 40) / z) + 'px');
+                ps.setProperty('--beam-w', (Math.max(240, dist * 0.95) / z) + 'px');
+                ps.setProperty('--beam-rot', (Math.atan2(-dx, dy) * 180 / Math.PI) + 'deg');
+            } else {
+                const land = page.classList.contains('lp-land');
+                ps.setProperty('--beam-len', land ? '160px' : '62vh');
+                ps.setProperty('--beam-w', land ? '240px' : '340px');
+                ps.setProperty('--beam-rot', '0deg');
+            }
+            box.style.setProperty('--lx', (r.left + r.width / 2 - b.left) + 'px');
+            box.style.setProperty('--ly', (r.top + 40 - b.top) + 'px');
+        }
+        function fit() {
+            if (isHidden()) return;
+            const vv = window.visualViewport, H = vv ? vv.height : innerHeight, W = vv ? vv.width : innerWidth;
+            page.style.setProperty('--vh', (H / 100) + 'px');
+            page.classList.toggle('lp-sm', H < 760);
+            page.classList.toggle('lp-xs', H < 640);
+            page.classList.toggle('lp-xxs', H < 540);
+            page.classList.toggle('lp-land', W > H && H < 520 && W <= 950);
+            page.classList.toggle('lp-tiny', H < 360);
+            requestAnimationFrame(() => { positionLight(); if (on) setDust(true); });
+        }
+        window.addEventListener('resize', fit);
+        window.addEventListener('orientationchange', fit);
+        if (window.visualViewport) window.visualViewport.addEventListener('resize', fit);
+        document.addEventListener('focusin', (e) => { if (page.contains(e.target)) setTimeout(() => { window.scrollTo(0, 0); page.scrollTop = 0; }, 60); });
+        const fineFocus = (el) => { if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) el.focus({ preventScroll: true }); };
+
+        /* ---------- Lamp ON/OFF ---------- */
+        function toggleLamp(fromPull) {
+            if (fromPull === true) {
+                themeIdx = (themeIdx + 1) % THEMES.length;
+                store.set('fp_lamp_theme', String(themeIdx));
+                applyTheme(themeIdx);
+            }
+            on = !on;
+            positionLight();
+            page.classList.toggle('lamp-on', on);
+            lampBtn.setAttribute('aria-pressed', on);
+            lampBtn.setAttribute('aria-label', on ? 'Lamp OFF karein' : 'Lamp ON karein');
+            lamp.classList.remove('swing'); rig.classList.remove('flicker'); void lamp.offsetWidth;
+            lamp.classList.add('swing'); if (on) rig.classList.add('flicker');
+            playLamp(on); setDust(on);
+            if (on) { startHum(); setTimeout(() => fineFocus(user.value ? pass : user), 800); }
+            else { stopHum(); if (document.activeElement && page.contains(document.activeElement)) document.activeElement.blur(); }
+        }
+        lampBtn.addEventListener('click', () => toggleLamp(false));
+        document.addEventListener('keydown', (e) => {
+            if (isHidden()) return;
+            const typing = /INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '');
+            if ((e.key === 'l' || e.key === 'L') && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) toggleLamp(false);
+        });
+
+        /* Pull cord: neeche kheenchne par lamp toggle + colour change */
+        let dragging = false, startY = 0, pulled = 0;
+        pull.addEventListener('pointerdown', (e) => {
+            dragging = true; startY = e.clientY; pulled = 0; pull.classList.remove('release');
+            try { pull.setPointerCapture(e.pointerId); } catch (_) {}
+        });
+        pull.addEventListener('pointermove', (e) => {
+            if (!dragging) return;
+            const z = parseFloat(getComputedStyle(lamp).zoom) || 1;
+            pulled = Math.max(0, Math.min(70, (e.clientY - startY) / z));
+            pull.style.setProperty('--pull', pulled + 'px');
+        });
+        pull.addEventListener('pointerup', () => {
+            if (!dragging) return; dragging = false;
+            pull.classList.add('release'); pull.style.setProperty('--pull', '0px');
+            if (pulled > 30 || pulled < 4) toggleLamp(true);
+        });
+        pull.addEventListener('pointercancel', () => { dragging = false; pull.style.setProperty('--pull', '0px'); });
+
+        /* ---------- Show / Hide password ---------- */
+        const eyeOpen = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+        const eyeOff = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+        eye.innerHTML = eyeOpen;
+        eye.addEventListener('click', () => {
+            const show = pass.type === 'password';
+            pass.type = show ? 'text' : 'password';
+            eye.innerHTML = show ? eyeOff : eyeOpen;
+            eye.setAttribute('aria-label', show ? 'Password chhupayein' : 'Password dikhayein');
+            tone({ freq: show ? 900 : 650, dur: 0.05, vol: 0.05 });
+        });
+
+        /* ---------- Field validation (sirf "required": asli check login() karta hai) ---------- */
+        function mark(fieldId, input, errId, msg) {
+            const f = $(fieldId);
+            f.classList.toggle('invalid', !!msg);
+            f.classList.toggle('valid', !msg && input.value !== '');
+            input.setAttribute('aria-invalid', !!msg);
+            $(errId).textContent = msg || '';
+        }
+        const needUser = () => (user.value.trim() ? '' : 'Username zaroori hai.');
+        const needPass = () => (pass.value ? '' : 'Password zaroori hai.');
+        [[user, 'fUser', 'userErr', needUser], [pass, 'fPass', 'passErr', needPass]].forEach(([el, f, er, rule]) => {
+            let touched = false;
+            el.addEventListener('blur', () => { if (el.value || touched) { touched = true; mark(f, el, er, rule()); } });
+            el.addEventListener('input', () => { if (touched) mark(f, el, er, rule()); });
+        });
+        ['keydown', 'keyup'].forEach((ev) => pass.addEventListener(ev, (e) => {
+            $('lpCaps').hidden = !(e.getModifierState && e.getModifierState('CapsLock'));
+        }));
+        pass.addEventListener('blur', () => { $('lpCaps').hidden = true; });
+
+        /* ---------- Forgot password view ---------- */
+        function showView(name) {
+            $('lpLoginView').hidden = name !== 'login';
+            $('lpResetView').hidden = name !== 'reset';
+            requestAnimationFrame(() => { positionLight(); if (on) setDust(true); });
+        }
+        $('lpForgot').addEventListener('click', () => { showView('reset'); tone({ freq: 520, type: 'triangle', dur: 0.08, vol: 0.06 }); });
+        $('lpBack').addEventListener('click', () => showView('login'));
+
+        /* ---------- login() se feedback ---------- */
+        let fails = 0, lockUntil = 0, lockTimer = null;
+        window.lampLoginLocked = () => Date.now() < lockUntil;
+        function startLock(sec) {
+            lockUntil = Date.now() + sec * 1000;
+            const btn = $('loginBtn'), st = $('loginStatus');
+            btn.disabled = true;
+            clearInterval(lockTimer);
+            const tick = () => {
+                const left = Math.ceil((lockUntil - Date.now()) / 1000);
+                if (left <= 0) {
+                    clearInterval(lockTimer); btn.disabled = false; fails = 0;
+                    st.textContent = 'Ab dobara try kar sakte hain.'; st.className = 'lp-status';
+                } else { st.textContent = 'Bahut zyada galat attempts. ' + left + 's baad try karein.'; st.className = 'lp-status err'; }
+            };
+            tick(); lockTimer = setInterval(tick, 1000);
+        }
+        window.lampLoginFeedback = function (ok, why) {
+            if (ok) { fails = 0; tone({ freq: 660, dur: 0.1, vol: 0.08 }); tone({ freq: 990, start: 0.1, dur: 0.18, vol: 0.08 }); return; }
+            tone({ freq: 220, end: 160, type: 'sawtooth', dur: 0.2, vol: 0.06 });
+            if (why !== 'empty' && ++fails >= 5) startLock(30);
+            if (why === 'empty') {
+                mark('fUser', user, 'userErr', needUser());
+                mark('fPass', pass, 'passErr', needPass());
+                (user.value.trim() ? pass : user).focus({ preventScroll: true });
+            }
+        };
+
+        /* ---------- Login page chhupe (login / logout) to lamp reset ---------- */
+        function resetLamp() {
+            on = false;
+            page.classList.remove('lamp-on'); lamp.classList.remove('swing'); rig.classList.remove('flicker');
+            lampBtn.setAttribute('aria-pressed', 'false'); lampBtn.setAttribute('aria-label', 'Lamp ON karein');
+            stopHum(); setDust(false);
+            pass.value = ''; pass.type = 'password'; eye.innerHTML = eyeOpen;
+            ['fUser', 'fPass'].forEach((id) => $(id).classList.remove('invalid', 'valid'));
+            $('userErr').textContent = ''; $('passErr').textContent = ''; $('lpCaps').hidden = true;
+            const st = $('loginStatus'); if (st) { st.textContent = ''; st.className = 'lp-status'; }
+            showView('login');
+        }
+        let wasHidden = isHidden();
+        new MutationObserver(() => {
+            const h = isHidden();
+            if (h === wasHidden) return;
+            wasHidden = h;
+            if (h) resetLamp(); else fit();
+        }).observe(page, { attributes: true, attributeFilter: ['class'] });
+
+        fit();
+        window.addEventListener('load', fit);
+    })();
+
+
     document.addEventListener('DOMContentLoaded', async () => {
-        const savedDarkTheme = localStorage.getItem('fp_theme') === 'dark';
-        if (savedDarkTheme) document.documentElement.setAttribute('data-theme', 'dark');
+        // Dark mode is the first-visit default. Preserve an explicit user choice.
+        const savedTheme = localStorage.getItem('fp_theme');
+        const savedDarkTheme = savedTheme !== 'light';
+        document.documentElement.setAttribute('data-theme', savedDarkTheme ? 'dark' : '');
+        document.documentElement.style.colorScheme = savedDarkTheme ? 'dark' : 'light';
         syncThemeIcons(savedDarkTheme);
 
         // Connect Supabase cloud DB (silent — no popup)
@@ -10647,11 +11255,19 @@ const WORKOUT_EX_IMAGES = { mon:[], tue:[], wed:[], thu:[], fri:[], sat:[], sun:
         const isFileOrAsset = /^file:|^content:/i.test(location.href) || /android_asset/i.test(location.href);
         if ('serviceWorker' in navigator && !isFileOrAsset) {
             const swUrl = 'sw.js';
-            navigator.serviceWorker.register(swUrl).then((reg) => {
-                console.log('PWA SW registered', reg.scope);
-            }).catch((err) => {
-                console.log('PWA SW failed (need HTTPS or localhost):', err.message);
-            });
+            // sw.js maujood ho aur secure context ho tabhi register karein (preview/sandbox me error nahi aata)
+            (async () => {
+                try {
+                    if (!window.isSecureContext) return;
+                    const res = await fetch(swUrl, { method: 'HEAD', cache: 'no-store' });
+                    const type = (res.headers.get('content-type') || '').toLowerCase();
+                    if (!res.ok || !/javascript|ecmascript/.test(type)) return;
+                    const reg = await navigator.serviceWorker.register(swUrl);
+                    console.log('PWA SW registered', reg.scope);
+                } catch (err) {
+                    console.debug('PWA SW skipped:', err && err.message);
+                }
+            })();
         } else if (isFileOrAsset && 'serviceWorker' in navigator) {
             // Unregister any old SW so APK always uses fresh assets/index.html
             navigator.serviceWorker.getRegistrations().then(regs => {
